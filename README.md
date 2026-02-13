@@ -50,6 +50,21 @@ This project is a deep dive into the **Next.js 15 App Router** architecture, pri
 <p align="center">
   <img src="assets/Screenshot 2026-02-13 153433.png" alt="TanPay Dashboard Preview" width="800">
 </p>
+<p align="center">
+  <img src="assets/Screenshot 2026-02-13 153433.png" alt="TanPay Dashboard Preview" width="800">
+</p>
+<p align="center">
+  <img src="assets/Screenshot 2026-02-13 153526.png" alt="TanPay Dashboard Preview" width="800">
+</p>
+<p align="center">
+  <img src="assets/Screenshot 2026-02-13 153918.png" alt="TanPay Dashboard Preview" width="800">
+</p>
+<p align="center">
+  <img src="assets/Screenshot 2026-02-13 153627.png" alt="TanPay Dashboard Preview" width="800">
+</p>
+<p align="center">
+  <img src="assets/Screenshot 2026-02-13 205112.png" alt="TanPay Dashboard Preview" width="800">
+</p>
 
 
 ## ⚙️ Development Setup
