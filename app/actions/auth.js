@@ -2,16 +2,18 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { getBaseUrl } from '../lib/config'
 
 
 export async function getMeAction() {
   const cookieStore = await cookies()
   const access = cookieStore.get('access')?.value
+  const API_URL = getBaseUrl()
 
   if (!access) return { user: null }
 
   try {
-    const res = await fetch(`${process.env.API_URL}/accounts/me/`, {
+    const res = await fetch(`${API_URL}/accounts/me/`, {
       headers: { 
         'Authorization': `Bearer ${access}`,
         'Content-Type': 'application/json'

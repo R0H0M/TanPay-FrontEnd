@@ -1,8 +1,10 @@
 // app/register/actions.js
 "use server";
 import { cookies } from 'next/headers';
+import { getBaseUrl } from '../lib/config';
 
 export async function registerAction(formData) {
+  const API_URL = getBaseUrl()
   const username = formData.get('username');
   const email = formData.get('email');
   const phone = formData.get('phone');
@@ -16,7 +18,7 @@ export async function registerAction(formData) {
 
   // 2. ارسال درخواست به جنگو
   try {
-    const res = await fetch(`${process.env.API_URL}/accounts/register/`, {
+    const res = await fetch(`${API_URL}/accounts/register/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

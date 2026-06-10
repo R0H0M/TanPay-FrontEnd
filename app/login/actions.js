@@ -1,12 +1,14 @@
 // app/login/actions.js
 "use server";
 import { cookies } from 'next/headers';
+import { getBaseUrl } from '../lib/config';
 
 export async function loginAction(formData) {
+  const API_URL = getBaseUrl()
   const username = formData.get('username');
   const password = formData.get('password');
 
-  const res = await fetch(`${process.env.API_URL}/accounts/login/`, {
+  const res = await fetch(`${API_URL}/accounts/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),

@@ -1,0 +1,26 @@
+// app/api/companies/employees/increase-credit/route.js
+import { NextResponse } from 'next/server';
+import { db } from '@/app/lib/mockDb';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const { employee_id, amount } = body;
+
+    // پیدا کردن کارمند در مرجع اصلی و افزایش موجودی
+    // بخشی از فایل app/api/companies/employees/increase-credit/route.js
+    const employee = db.employees.find(emp => emp.id === Number(employee_id));
+
+    if (employee) {
+      // اعمال افزایش شارژ روی فیلد درست فرانت‌اند
+      employee.credit_limit = (Number(employee.credit_limit) || 0) + Number(amount);
+      return NextResponse.json({ success: true, employee });
+    }
+
+    return NextResponse.json({ error: "کارمند یافت نشد" }, { status: 404 });
+  } catch (err) {
+    return NextResponse.json({ error: "خطا در شارژ اعتبار" }, { status: 500 });
+  }
+}
