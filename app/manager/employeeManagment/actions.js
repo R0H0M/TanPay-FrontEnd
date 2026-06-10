@@ -2,15 +2,17 @@
 
 import { cookies } from 'next/headers';
 import { revalidateTag } from 'next/cache';
+import { getBaseUrl } from '@/app/lib/config';
 
 
 // ۱. دریافت لیست کارمندان
 export async function getEmployees() {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
         
     try {
-        const res = await fetch(`${process.env.API_URL}/companies/employees/`, {
+        const res = await fetch(`${API_URL}/companies/employees/`, {
             headers: { 'Authorization': `Bearer ${accessToken}` },
             next: { tags: ['employees-list'] }
         });
@@ -23,11 +25,12 @@ export async function getEmployees() {
 export async function addEmployeeAction(formData) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
 
     const data = Object.fromEntries(formData.entries());
 
     try {
-        const res = await fetch(`${process.env.API_URL}/companies/add-employee/`, {
+        const res = await fetch(`${API_URL}/companies/add-employee/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -46,9 +49,10 @@ export async function addEmployeeAction(formData) {
 export async function rechargeWalletAction(employee_id, amount) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
 
     try {
-        const res = await fetch(`${process.env.API_URL}/companies/employees/increase-credit/`, {
+        const res = await fetch(`${API_URL}/companies/employees/increase-credit/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -66,12 +70,14 @@ export async function rechargeWalletAction(employee_id, amount) {
     } catch(err) { return { error: err || 'خطای سرور' }; }
 }
 
+// ۴. اخراج کارمند (اصلاح شد)
 export async function deleteEmployee(employee_id) {
   const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
+  const API_URL = getBaseUrl()
 
   try {
-    const res = await fetch(`${process.env.API_URL}/companies/employees/${employee_id}/`, {
+    const res = await fetch(`${API_URL}/companies/employees/${employee_id}/`, {
       method: 'DELETE',
       headers: { 
         'Authorization': `Bearer ${accessToken}` 
@@ -82,8 +88,8 @@ export async function deleteEmployee(employee_id) {
         return { error: 'خطا در اخراج کارمند' }
     }
 
-    // 🔥 اینجا هم کش را باطل می‌کنیم تا آیتم حذف شده از لیست همه غیب شود
-    revalidateTag('employees-stores')
+    // 🔥 تصحیح تگ: باطل کردن کش لیست کارمندان
+    revalidateTag('employees-list')
 
     return { success: true }
 

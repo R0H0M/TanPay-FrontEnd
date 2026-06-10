@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-// import Cookies from 'js-cookie' // این را حذف کنید
 import { useUser } from '../context/UserContext'
 import { loginAction } from './actions'
 
@@ -13,8 +12,30 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showDemoModal, setShowDemoModal] = useState(false)
 
- async function handleLogin(formData) {
+  useEffect(() => {
+    const isMock = process.env.NEXT_PUBLIC_USE_MOCK === 'true' || 
+                   process.env.NEXT_PUBLIC_VERCEL_URL;
+    
+    if (isMock) {
+      setShowDemoModal(true)
+    }
+  }, [])
+
+  // تابع کمکی برای پر کردن خودکار فرم و بستن سریع مودال
+  const fillCredentials = (username, password) => {
+    const usernameInput = document.getElementsByName('username')[0];
+    const passwordInput = document.getElementsByName('password')[0];
+    
+    if (usernameInput && passwordInput) {
+      usernameInput.value = username;
+      passwordInput.value = password;
+      setShowDemoModal(false); // مودال بسته می‌شود تا کاربر دکمه تایید را بزند
+    }
+  }
+
+  async function handleLogin(formData) {
     setLoading(true)
     setError('')
     const result = await loginAction(formData)
@@ -24,13 +45,80 @@ export default function LoginPage() {
       setLoading(false)
     } else {
       setUser(result.user)
-      router.push(result.role === 'company_manager' ? '/manager/storeManagment' : '/dashboard')
+      router.push(result.role === 'company_manager' ? '/manager' : '/dashboard')
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4 overflow-hidden relative">
-      {/* Glow Effect تقویت شده */}
+      
+      {/* --- MOCK CREDENTIALS MODAL --- */}
+      {showDemoModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity"
+            onClick={() => setShowDemoModal(false)}
+          />
+          
+          <div className="relative w-full max-w-sm bg-zinc-900 border border-fuchsia-500/40 rounded-2xl p-6 shadow-[0_0_50px_rgba(217,70,239,0.2)] animate-in fade-in zoom-in duration-300 font-iransans">
+            <button 
+                onClick={() => setShowDemoModal(false)}
+                className="absolute top-4 left-4 text-zinc-500 hover:text-white transition"
+            >
+                ✕
+            </button>
+
+            <div className="text-center mb-6">
+                <div className="inline-block px-3 py-1 rounded-full bg-fuchsia-500/10 text-fuchsia-400 text-xs font-bold border border-fuchsia-500/20 mb-2">
+                    DEMO MODE
+                </div>
+                <h3 className="text-lg font-bold text-white">اطلاعات ورود آزمایشی</h3>
+                <p className="text-zinc-500 text-xs mt-1">با کلیک روی هر حساب، اطلاعات فرم خودکار پر می‌شود</p>
+            </div>
+
+            <div className="space-y-3">
+                {/* Admin Row - اصلاح شد: کلیک برای پر کردن خودکار فرم */}
+                <div 
+                  onClick={() => fillCredentials('admin', '1234')}
+                  className="bg-black/50 p-3 rounded-xl border border-white/5 flex justify-between items-center group hover:border-fuchsia-500/50 cursor-pointer transition-all duration-300"
+                >
+                    <div>
+                        <span className="text-xs text-zinc-500 block">مدیر شرکت (کلیک کنید)</span>
+                        <span className="text-sm text-white font-mono font-bold group-hover:text-fuchsia-400">admin</span>
+                    </div>
+                    <div className="text-right">
+                        <span className="text-xs text-zinc-500 block">رمز عبور</span>
+                        <span className="text-sm text-white font-mono">1234</span>
+                    </div>
+                </div>
+
+                {/* Employee Row - اصلاح شد: کلیک برای پر کردن خودکار فرم */}
+                <div 
+                  onClick={() => fillCredentials('emp', '1234')}
+                  className="bg-black/50 p-3 rounded-xl border border-white/5 flex justify-between items-center group hover:border-purple-500/50 cursor-pointer transition-all duration-300"
+                >
+                    <div>
+                        <span className="text-xs text-zinc-500 block">کارمند تستی (کلیک کنید)</span>
+                        <span className="text-sm text-white font-mono font-bold group-hover:text-purple-400">emp</span>
+                    </div>
+                    <div className="text-right">
+                        <span className="text-xs text-zinc-500 block">رمز عبور</span>
+                        <span className="text-sm text-white font-mono">1234</span>
+                    </div>
+                </div>
+            </div>
+
+            <button 
+                onClick={() => setShowDemoModal(false)}
+                className="w-full mt-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-bold transition"
+            >
+                بستن راهنما
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Glow Effect */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-fuchsia-600/10 blur-[120px] rounded-full" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-fuchsia-900/10 blur-[120px] rounded-full" />
 

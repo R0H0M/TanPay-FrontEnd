@@ -1,9 +1,11 @@
 // app/register-company/actions.js
 "use server";
+import { getBaseUrl } from '@/app/lib/config';
 import { cookies } from 'next/headers';
 
 export async function registerCompanyAction(formData) {
   // تبدیل FormData به آبجکت برای ارسال JSON
+  const API_URL = getBaseUrl()
   const rawData = {
     first_name: formData.get('first_name'),
     last_name: formData.get('last_name'),
@@ -18,7 +20,7 @@ export async function registerCompanyAction(formData) {
   };
 
   try {
-    const res = await fetch(`${process.env.API_URL}/companies/register/`, {
+    const res = await fetch(`${API_URL}/companies/register/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(rawData),

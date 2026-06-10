@@ -3,10 +3,8 @@ import Header from "./component/headerFile/Header"
 
 
 export default function HomePage() {
-  console.log(process.env.API_URL);
   return (
     <>
-    <Header />  
     <main dir="rtl" className="bg-black text-white font-iransans">
 
       {/* ================= HERO ================= */}

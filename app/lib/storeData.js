@@ -1,15 +1,17 @@
 // lib/api.js
 import { cookies } from 'next/headers';
+import { getBaseUrl } from './config';
 
 export async function getStores() {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
 
     if (!accessToken) {
         throw new Error('توکن دسترسی یافت نشد.');
     }
 
-    const res = await fetch(`${process.env.API_URL}/shops/my-shops/`, {
+    const res = await fetch(`${API_URL}/shops/my-shops/`, {
         headers: { 
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
