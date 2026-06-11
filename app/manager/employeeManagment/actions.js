@@ -1,83 +1,99 @@
-// فایل اکشن کارمندان شما
-'use server'
+"use server";
 
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { db } from '@/app/lib/mockDb'
+import { cookies } from 'next/headers';
+import { revalidateTag } from 'next/cache';
+import { getBaseUrl } from '@/app/lib/config';
 
+
+// ۱. دریافت لیست کارمندان
 export async function getEmployees() {
-  const cookieStore = await cookies()
-  const accessToken = cookieStore.get('access')?.value
-
-  if (!accessToken) {
-    redirect('/login')
-  }
-
-  // خواندن مستقیم از رم
-  return db.employees;
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
+        
+    try {
+        const res = await fetch(`${API_URL}/companies/employees/`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            next: { tags: ['employees-list'] }
+        });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch(err) { return []; }
 }
 
+// ۲. افزودن کارمند جدید
 export async function addEmployeeAction(formData) {
-  const cookieStore = await cookies()
-  const accessToken = cookieStore.get('access')?.value
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
 
-  if (!accessToken) {
-    redirect('/login')
-  }
+    const data = Object.fromEntries(formData.entries());
 
-  const body = Object.fromEntries(formData.entries());
-  const employeeName = body.first_name ? `${body.first_name} ${body.last_name || ''}` : (body.username || "کارمند جدید");
-
-  const newEmployee = {
-    id: Date.now(),
-    first_name: body.first_name || body.name || '',
-    last_name: body.last_name || '',
-    name: employeeName,
-    username: body.username || body.name || `emp_${Date.now().toString().slice(-4)}`,
-    password: body.password || '1234',
-    email: body.email || '',
-    phone: body.phone || '',
-    role: body.role || 'employee',
-    credit_limit: 0
-  };
-
-  // پوش مستقیم کارمند جدید
-  db.employees.push(newEmployee);
-
-  return { success: true };
+    try {
+        const res = await fetch(`${API_URL}/companies/add-employee/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        });
+        
+        if (!res.ok) return { error: 'خطا در ثبت کارمند' };
+        revalidateTag('employees-list');
+        return { success: true };
+    } catch(err) { return { error: err || 'خطای شبکه' }; }
 }
 
+// ۳. افزایش اعتبار کارمند
 export async function rechargeWalletAction(employee_id, amount) {
-  const cookieStore = await cookies()
-  const accessToken = cookieStore.get('access')?.value
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('access')?.value;
+    const API_URL = getBaseUrl()
 
-  if (!accessToken) {
-    redirect('/login')
-  }
+    try {
+        const res = await fetch(`${API_URL}/companies/employees/increase-credit/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ employee_id, amount }),
+        });
 
-  const employee = db.employees.find(emp => emp.id === Number(employee_id));
-  if (employee) {
-    // افزایش اعتبار در حافظه رم
-    employee.credit_limit = (Number(employee.credit_limit) || 0) + Number(amount);
-    return { success: true };
-  }
-
-  return { error: 'کارمند یافت نشد' };
+        if (!res.ok) {
+            const data = await res.json()
+            return { error: data || 'خطا در شارژ اعتبار' };
+        } 
+        revalidateTag('employees-list');
+        return { success: true };
+    } catch(err) { return { error: err || 'خطای سرور' }; }
 }
 
+// ۴. اخراج کارمند (اصلاح شد)
 export async function deleteEmployee(employee_id) {
   const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
+  const API_URL = getBaseUrl()
 
-  if (!accessToken) {
-    redirect('/login')
+  try {
+    const res = await fetch(`${API_URL}/companies/employees/${employee_id}/`, {
+      method: 'DELETE',
+      headers: { 
+        'Authorization': `Bearer ${accessToken}` 
+      },
+    })
+
+    if (!res.ok) {
+        return { error: 'خطا در اخراج کارمند' }
+    }
+
+    // 🔥 تصحیح تگ: باطل کردن کش لیست کارمندان
+    revalidateTag('employees-list')
+
+    return { success: true }
+
+  } catch (err) {
+    return { error: err || 'خطای سرور' }
   }
-
-  const index = db.employees.findIndex(emp => emp.id === Number(employee_id));
-  if (index !== -1) {
-    db.employees.splice(index, 1); // حذف مستقیم کارمند
-    return { success: true };
-  }
-
-  return { error: 'کارمند یافت نشد' };
 }

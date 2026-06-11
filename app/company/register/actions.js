@@ -1,51 +1,67 @@
-// app/register-company/actions.js (یا مسیر ثبت شرکت شما)
-'use server'
-
-import { cookies } from 'next/headers'
-import { db } from '@/app/lib/mockDb'
+// app/register-company/actions.js
+"use server";
+import { getBaseUrl } from '@/app/lib/config';
+import { cookies } from 'next/headers';
 
 export async function registerCompanyAction(formData) {
-  const first_name = formData.get('first_name');
-  const last_name = formData.get('last_name');
-  const username = formData.get('username');
-  const email = formData.get('email');
-  const phone = formData.get('phone');
-  const password = formData.get('password');
-  const company_name = formData.get('company_name');
-  const national_id = formData.get('national_id');
-  const company_phone = formData.get('company_phone');
-  const address = formData.get('address');
+  // تبدیل FormData به آبجکت برای ارسال JSON
+  const API_URL = getBaseUrl()
+  const rawData = {
+    first_name: formData.get('first_name'),
+    last_name: formData.get('last_name'),
+    username: formData.get('username'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    password: formData.get('password'),
+    company_name: formData.get('company_name'),
+    national_id: formData.get('national_id'),
+    company_phone: formData.get('company_phone'),
+    address: formData.get('address'),
+  };
 
-  const newManager = {
-    id: Date.now(),
-    first_name,
-    last_name,
-    username,
-    password: password || '1234', // پسورد پیش‌فرض دمو
-    email,
-    phone,
-    role: 'company_manager',
-    company: {
-      id: Date.now() + 1,
-      name: company_name,
-      national_id,
-      phone: company_phone,
-      address
+  try {
+    const res = await fetch(`${API_URL}/companies/register/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rawData),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        // مدیریت انواع ارورهای DRF
+        let errorMessage = 'مشکلی در ثبت شرکت پیش آمد';
+        if (data.detail) errorMessage = data.detail;
+        else if (typeof data === 'object') {
+            const firstKey = Object.keys(data)[0];
+            const val = data[firstKey];
+            errorMessage = `${firstKey}: ${Array.isArray(val) ? val[0] : val}`;
+        }
+        return { error: errorMessage };
     }
-  };
 
-  // ۱. ذخیره مستقیم در دیتابیس تستی مدیران (بدون فچ شبکه)
-  db.managers.push(newManager);
+    // ست کردن کوکی‌های امن در سرور
+    if (data.access) {
+      (await cookies()).set('access', data.access, { httpOnly: true, secure: true, path: '/' });
+      (await cookies()).set('refresh', data.refresh, { httpOnly: true, secure: true, path: '/' });
+      (await cookies()).set('role', data.role, { httpOnly: true, secure: true, path: '/' });
+    }
 
-  // ۲. تولید توکن تستی داینامیک
-  const fakeToken = "mock_access_token_manager_" + newManager.username;
-  
-  // ۳. ست کردن کوکی بدون کلمه await (مخصوص نکست ۱۴ برای جلوگیری از کرش)
-  cookies().set('access', fakeToken, { httpOnly: true, secure: true, path: '/' });
+    return { 
+        success: true, 
+        user: {
+            id: data.id,
+            username: data.username,
+            email: data.email,
+            phone: data.phone,
+            role: 'company-manager',
+            first_name: data.first_name,
+            last_name: data.last_name,
+        },
+        company: data.company
+    };
 
-  return {
-    success: true,
-    user: { ...newManager, password: undefined },
-    company: newManager.company
-  };
+  } catch (err) {
+    return { error: "خطای ارتباط با سرور" };
+  }
 }
