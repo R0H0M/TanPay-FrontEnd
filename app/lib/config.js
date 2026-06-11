@@ -1,12 +1,16 @@
-// lib/config.js
+// app/lib/config.js
 
 export function getBaseUrl() {
-  // 1. اگر روی Vercel هستیم (آدرس HTTPS باید دستی اضافه شود)
-  if (process.env.NEXT_PUBLIC_USE_MOCK) {
-    return `${process.env.NEXT_PUBLIC_SITE_URL}`;
+  // ۱. اگر روی سرورهای ابری Vercel باشیم
+  // متغیر سیستمی VERCEL_URL در ورسل به طور خودکار وجود دارد اما فاقد https:// است
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}/api`;
   }
-  
-  // 2. اگر لوکال هستیم (پورت 3000)
-  // اگر پورت پروژه شما فرق دارد (مثلا 3001)، اینجا را تغییر دهید
-  return process.env.NEXT_PUBLIC_DJANGO_API_URL;
+
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`;
+  }
+
+  // ۲. حالت لوکال هاست توسعه
+  return 'http://localhost:3000/api';
 }
