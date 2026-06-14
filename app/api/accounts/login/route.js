@@ -34,8 +34,8 @@ export async function POST(request) {
     if (!foundEmployee && username === 'emp' && password === '1234') {
       foundEmployee = {
         id: 1,
-        first_name: "علی",
-        last_name: "رضایی",
+        first_name: "رهام",
+        last_name: "رضوی",
         username: "emp",
         password: "1234",
         role: "employee",

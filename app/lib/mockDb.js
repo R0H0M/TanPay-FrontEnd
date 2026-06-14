@@ -1,13 +1,13 @@
 // app/lib/mockDb.js
 
-// دیتابیس تستی کارمندان
+// تعریف دیتابیس سراسری در حافظه موقت
 if (!global.employeeDB) {
   global.employeeDB = [
     { 
       id: 1, 
       first_name: "رهام", 
       last_name: "رضوی", 
-      username: "emp", 
+      username: "emp",
       password: "1234", 
       role: "employee", 
       phone: "09121111111", 
@@ -16,7 +16,6 @@ if (!global.employeeDB) {
   ];
 }
 
-// دیتابیس تستی مدیران (جدید)
 if (!global.managerDB) {
   global.managerDB = [
     {
@@ -42,6 +41,6 @@ if (!global.storeDB) {
 
 export const db = {
   get employees() { return global.employeeDB; },
-  get managers() { return global.managerDB; }, // اضافه شد
+  get managers() { return global.managerDB; },
   get stores() { return global.storeDB; }
 };
