@@ -1,13 +1,11 @@
 // app/lib/mockDb.js
-
-// تعریف دیتابیس سراسری در حافظه موقت
 if (!global.employeeDB) {
   global.employeeDB = [
     { 
       id: 1, 
-      first_name: "رهام", 
-      last_name: "رضوی", 
-      username: "emp",
+      first_name: "علی", 
+      last_name: "رضایی", 
+      username: "emp", 
       password: "1234", 
       role: "employee", 
       phone: "09121111111", 
