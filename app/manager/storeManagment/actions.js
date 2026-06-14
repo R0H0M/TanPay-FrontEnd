@@ -114,7 +114,7 @@ import { revalidatePath } from 'next/cache' // <--- ۱. اضافه شد
 import { db } from '@/app/lib/mockDb'
 
 export async function getCompanyStores() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {
@@ -125,7 +125,7 @@ export async function getCompanyStores() {
 }
 
 export async function addStoreAction(formData) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {
@@ -150,7 +150,7 @@ export async function addStoreAction(formData) {
 }
 
 export async function deleteStoreAction(storeId) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {

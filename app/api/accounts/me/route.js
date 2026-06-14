@@ -13,7 +13,7 @@ export async function GET(request) {
 
   const token = authHeader.split(' ')[1];
 
-  // ۱. بررسی داینامیک کارمندان تستی
+  // ۱. بررسی داینامیک توکن کارمند
   if (token.startsWith('mock_access_token_emp_')) {
     const usernameFromToken = token.replace('mock_access_token_emp_', '');
     const employee = db.employees.find(emp => emp.username === usernameFromToken);
@@ -22,7 +22,7 @@ export async function GET(request) {
     }
   }
 
-  // ۲. بررسی داینامیک مدیران ثبت‌شده تستی (جدید)
+  // ۲. بررسی داینامیک مدیران ثبت‌شده
   if (token.startsWith('mock_access_token_manager_')) {
     const usernameFromToken = token.replace('mock_access_token_manager_', '');
     const manager = db.managers.find(m => m.username === usernameFromToken);
@@ -31,7 +31,6 @@ export async function GET(request) {
         ...manager,
         role: "company_manager",
         password: undefined,
-        // همگام‌سازی فیلدهای مورد نیاز فرانت‌اند
         company_id: manager.company?.id,
         company_name: manager.company?.name,
         company: manager.company
@@ -39,16 +38,10 @@ export async function GET(request) {
     }
   }
 
-  // ۳. فال‌بک پیش‌فرض (مدیر نئونی)
+  // ۳. فال‌بک پیش‌فرض
   return NextResponse.json({
-    id: 1001,
-    username: "admin_user",
-    email: "manager@neon.com",
-    phone: "09120000000",
-    first_name: "مدیر",
-    last_name: "نئونی",
-    role: "company_manager",
-    company_id: 1,
-    company_name: "شرکت نئون"
+    id: 1001, username: "admin_user", email: "manager@neon.com", phone: "09120000000",
+    first_name: "مدیر", last_name: "نئونی", role: "company_manager",
+    company_id: 1, company_name: "شرکت نئون"
   });
 }

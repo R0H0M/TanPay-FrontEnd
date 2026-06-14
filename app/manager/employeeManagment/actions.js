@@ -108,7 +108,7 @@ import { revalidatePath } from 'next/cache' // <--- ۱. اضافه شد
 import { db } from '@/app/lib/mockDb'
 
 export async function getEmployees() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {
@@ -119,7 +119,7 @@ export async function getEmployees() {
 }
 
 export async function addEmployeeAction(formData) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {
@@ -151,7 +151,7 @@ export async function addEmployeeAction(formData) {
 }
 
 export async function rechargeWalletAction(employee_id, amount) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {
@@ -172,7 +172,7 @@ export async function rechargeWalletAction(employee_id, amount) {
 }
 
 export async function deleteEmployee(employee_id) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get('access')?.value
 
   if (!accessToken) {

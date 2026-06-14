@@ -11,11 +11,9 @@ export async function POST(request) {
 
     const newEmployee = {
       id: Date.now(),
-
-      // 🔥 اصلاح شد: ذخیره مجزای نام و نام خانوادگی برای هماهنگی کامل با فرانت‌اند شما
       first_name: body.first_name || body.name || '',
       last_name: body.last_name || '',
-
+      name: employeeName,
       username: body.username || body.name || `emp_${Date.now().toString().slice(-4)}`,
       password: body.password || '1234',
       email: body.email || '',
@@ -24,10 +22,10 @@ export async function POST(request) {
       credit_limit: 0
     };
 
-    db.employees.push(newEmployee); // ذخیره در مرجع اصلی
-
+    db.employees.push(newEmployee);
     return NextResponse.json({ success: true, employee: newEmployee }, { status: 201 });
   } catch (error) {
+    console.error("API Error:", error);
     return NextResponse.json({ error: "خطا در پردازش اطلاعات" }, { status: 500 });
   }
 }
